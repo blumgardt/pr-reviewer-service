@@ -21,7 +21,3 @@ func (r *Router) Handle(pattern string, h http.Handler) {
 func (r *Router) HandleFunc(pattern string, h func(w http.ResponseWriter, r *http.Request)) {
 	r.mux.HandleFunc(pattern, h)
 }
-
-//func (r *Router) GET(path string, handler http.HandlerFunc) {
-//
-//}

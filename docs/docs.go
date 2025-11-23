@@ -159,6 +159,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/stats/reviewers": {
+            "get": {
+                "description": "Возвращает количество назначений на ревью для каждого пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Статистика по ревьюверам",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReviewerStatsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "INTERNAL",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/team/add": {
             "post": {
                 "description": "Создаёт новую команду с участниками. Если пользователи уже существуют, обновляет их данные и привязку к команде.",
@@ -452,6 +478,31 @@ const docTemplate = `{
                 },
                 "replaced_by": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ReviewerStatsItem": {
+            "type": "object",
+            "properties": {
+                "assigned_count": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReviewerStatsResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReviewerStatsItem"
+                    }
                 }
             }
         },

@@ -8,6 +8,7 @@ import (
 	"github.com/blumgardt/pr-reviewer-service.git/internal/config"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/http"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/http/handlers/pull_requests"
+	"github.com/blumgardt/pr-reviewer-service.git/internal/http/handlers/stats"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/http/handlers/teams"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/http/handlers/users"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/repository/postgres"
@@ -24,6 +25,7 @@ type App struct {
 	UsersHandler *users.UsersHandler
 	TeamHandler  *teams.TeamHandler
 	PRHandler    *pull_requests.PullRequestHandler
+	StatsHandler *stats.StatsHandler
 }
 
 func NewApp(config *config.Config, logger *log.Logger, pool *pgxpool.Pool) *App {
@@ -31,16 +33,19 @@ func NewApp(config *config.Config, logger *log.Logger, pool *pgxpool.Pool) *App 
 	teamRepo := postgres.NewTeamRepository(pool)
 	usersRepo := postgres.NewUserRepository(pool)
 	prRepo := postgres.NewPullRequestRepository(pool)
+	statsRepo := postgres.NewStatsRepository(pool)
 
 	// Services
 	teamService := service.NewTeamService(teamRepo)
 	usersService := service.NewUserService(usersRepo)
 	prService := service.NewPullRequestService(prRepo, usersRepo, teamRepo)
+	statsService := service.NewStatsService(statsRepo)
 
 	// Handlers
 	teamHandler := teams.NewTeamHandler(teamService)
 	usersHandler := users.NewUsersHandler(usersService)
 	prHandler := pull_requests.NewPullRequestHandler(prService)
+	statsHandler := stats.NewStatsHandler(statsService)
 
 	app := &App{
 		config:       config,
@@ -49,6 +54,7 @@ func NewApp(config *config.Config, logger *log.Logger, pool *pgxpool.Pool) *App 
 		UsersHandler: usersHandler,
 		TeamHandler:  teamHandler,
 		PRHandler:    prHandler,
+		StatsHandler: statsHandler,
 	}
 
 	app.configureRouter()
@@ -75,6 +81,9 @@ func (a *App) configureRouter() {
 	a.Router.HandleFunc("/pullRequest/create", a.PRHandler.Create)
 	a.Router.HandleFunc("/pullRequest/merge", a.PRHandler.Merge)
 	a.Router.HandleFunc("/pullRequest/reassign", a.PRHandler.ReAssign)
+
+	// Stats
+	a.Router.HandleFunc("/stats/reviewers", a.StatsHandler.GetReviewerStats)
 
 	// Swagger UI
 	a.Router.Handle("/swagger/", httpSwagger.WrapHandler)

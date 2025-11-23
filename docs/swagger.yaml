@@ -77,6 +77,22 @@ definitions:
       replaced_by:
         type: string
     type: object
+  dto.ReviewerStatsItem:
+    properties:
+      assigned_count:
+        type: integer
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.ReviewerStatsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.ReviewerStatsItem'
+        type: array
+    type: object
   dto.SetIsActiveRequest:
     properties:
       is_active:
@@ -235,6 +251,23 @@ paths:
       summary: Переназначить ревьювера на другого из его команды
       tags:
       - PullRequests
+  /stats/reviewers:
+    get:
+      description: Возвращает количество назначений на ревью для каждого пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReviewerStatsResponse'
+        "500":
+          description: INTERNAL
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Статистика по ревьюверам
+      tags:
+      - Stats
   /team/add:
     post:
       consumes:
