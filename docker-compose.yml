@@ -24,7 +24,7 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: pr_service
+      DB_NAME: pr-reviewer-service-postgres
     ports:
       - "8080:8080"
     command: ["./pr-reviewer-service"]
