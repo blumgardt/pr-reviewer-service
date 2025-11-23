@@ -19,6 +19,17 @@ func NewUsersHandler(userService service.UserService) *UsersHandler {
 	return &UsersHandler{userService: userService}
 }
 
+// SetIsActive godoc
+// @Summary      Установить флаг активности пользователя
+// @Description  Обновляет поле is_active для указанного пользователя.
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.SetIsActiveRequest   true  "User id and new active flag"
+// @Success      200   {object}  dto.SetIsActiveResponse
+// @Failure      400   {object}  response.ErrorResponse        "VALIDATION"
+// @Failure      404   {object}  response.ErrorResponse        "NOT_FOUND"
+// @Router       /users/setIsActive [post]
 func (h *UsersHandler) SetIsActive(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -48,6 +59,16 @@ func (h *UsersHandler) SetIsActive(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+// GetReview godoc
+// @Summary      Получить PR'ы, где пользователь назначен ревьювером
+// @Description  Возвращает список pull request'ов, где пользователь указан как ревьювер.
+// @Tags         Users
+// @Produce      json
+// @Param        user_id  query     string                    true  "User ID"
+// @Success      200      {object}  dto.GetReviewResponse
+// @Failure      400      {object}  response.ErrorResponse         "VALIDATION"
+// @Failure      404      {object}  response.ErrorResponse         "NOT_FOUND"
+// @Router       /users/getReview [get]
 func (h *UsersHandler) GetReview(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)

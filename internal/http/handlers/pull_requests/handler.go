@@ -19,6 +19,17 @@ func NewPullRequestHandler(prService service.PullRequestService) *PullRequestHan
 	return &PullRequestHandler{prService: prService}
 }
 
+// Create godoc
+// @Summary      Создать PR и автоматически назначить до 2 ревьюверов
+// @Description  Создаёт новый pull request и назначает до двух активных ревьюверов из команды автора.
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.CreatePullRequestRequest  true  "Pull request create body"
+// @Success      201   {object}  dto.CreatePullRequestResponse
+// @Failure      400   {object}  response.ErrorResponse             "VALIDATION / NOT_FOUND (author/team)"
+// @Failure      409   {object}  response.ErrorResponse             "PR_EXISTS"
+// @Router       /pullRequest/create [post]
 func (h *PullRequestHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -47,6 +58,17 @@ func (h *PullRequestHandler) Create(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+// Merge godoc
+// @Summary      Пометить PR как MERGED (идемпотентная операция)
+// @Description  Переводит pull request в состояние MERGED. Повторный вызов не приводит к ошибке.
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.MergePullRequestRequest  true  "Pull request id"
+// @Success      200   {object}  dto.MergePullRequestResponse
+// @Failure      400   {object}  response.ErrorResponse            "VALIDATION"
+// @Failure      404   {object}  response.ErrorResponse            "NOT_FOUND"
+// @Router       /pullRequest/merge [post]
 func (h *PullRequestHandler) Merge(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -75,6 +97,18 @@ func (h *PullRequestHandler) Merge(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+// ReAssign godoc
+// @Summary      Переназначить ревьювера на другого из его команды
+// @Description  Заменяет указанного ревьювера другим активным участником его команды.
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.ReassignPullRequestRequest  true  "Reassign body"
+// @Success      200   {object}  dto.ReassignPullRequestResponse
+// @Failure      400   {object}  response.ErrorResponse               "VALIDATION"
+// @Failure      404   {object}  response.ErrorResponse               "NOT_FOUND"
+// @Failure      409   {object}  response.ErrorResponse               "PR_MERGED / NOT_ASSIGNED / NO_CANDIDATE"
+// @Router       /pullRequest/reassign [post]
 func (h *PullRequestHandler) ReAssign(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)

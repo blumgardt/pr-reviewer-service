@@ -1,0 +1,354 @@
+basePath: /
+definitions:
+  dto.CreatePullRequestRequest:
+    properties:
+      author_id:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+    type: object
+  dto.CreatePullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/dto.PullRequestDTO'
+    type: object
+  dto.GetReviewResponse:
+    properties:
+      pull_requests:
+        items:
+          $ref: '#/definitions/dto.PullRequestShortDTO'
+        type: array
+      user_id:
+        type: string
+    type: object
+  dto.MergePullRequestRequest:
+    properties:
+      pull_request_id:
+        type: string
+    type: object
+  dto.MergePullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/dto.PullRequestDTO'
+    type: object
+  dto.PullRequestDTO:
+    properties:
+      assigned_reviewers:
+        items:
+          type: string
+        type: array
+      author_id:
+        type: string
+      createdAt:
+        type: string
+      mergedAt:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.PullRequestShortDTO:
+    properties:
+      author_id:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.ReassignPullRequestRequest:
+    properties:
+      old_user_id:
+        type: string
+      pull_request_id:
+        type: string
+    type: object
+  dto.ReassignPullRequestResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/dto.PullRequestDTO'
+      replaced_by:
+        type: string
+    type: object
+  dto.SetIsActiveRequest:
+    properties:
+      is_active:
+        type: boolean
+      user_id:
+        type: string
+    type: object
+  dto.SetIsActiveResponse:
+    properties:
+      user:
+        $ref: '#/definitions/dto.UserDTO'
+    type: object
+  dto.TeamAddResponse:
+    properties:
+      teams:
+        $ref: '#/definitions/dto.TeamDTO'
+    type: object
+  dto.TeamDTO:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/dto.TeamMemberDTO'
+        type: array
+      team_name:
+        type: string
+    type: object
+  dto.TeamMemberDTO:
+    properties:
+      is_active:
+        type: boolean
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.UserDTO:
+    properties:
+      is_active:
+        type: boolean
+      team_name:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        properties:
+          code:
+            type: string
+          message:
+            type: string
+        type: object
+    type: object
+info:
+  contact: {}
+  description: Сервис назначения ревьюеров на Pull Request'ы.
+  title: PR Reviewer Assignment Service API
+  version: "1.0"
+paths:
+  /pullRequest/create:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новый pull request и назначает до двух активных ревьюверов
+        из команды автора.
+      parameters:
+      - description: Pull request create body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreatePullRequestResponse'
+        "400":
+          description: VALIDATION / NOT_FOUND (author/team)
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: PR_EXISTS
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Создать PR и автоматически назначить до 2 ревьюверов
+      tags:
+      - PullRequests
+  /pullRequest/merge:
+    post:
+      consumes:
+      - application/json
+      description: Переводит pull request в состояние MERGED. Повторный вызов не приводит
+        к ошибке.
+      parameters:
+      - description: Pull request id
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MergePullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MergePullRequestResponse'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: NOT_FOUND
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Пометить PR как MERGED (идемпотентная операция)
+      tags:
+      - PullRequests
+  /pullRequest/reassign:
+    post:
+      consumes:
+      - application/json
+      description: Заменяет указанного ревьювера другим активным участником его команды.
+      parameters:
+      - description: Reassign body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReassignPullRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReassignPullRequestResponse'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: NOT_FOUND
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: PR_MERGED / NOT_ASSIGNED / NO_CANDIDATE
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Переназначить ревьювера на другого из его команды
+      tags:
+      - PullRequests
+  /team/add:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую команду с участниками. Если пользователи уже существуют,
+        обновляет их данные и привязку к команде.
+      parameters:
+      - description: Team body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TeamDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TeamAddResponse'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: TEAM_EXISTS
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Создать команду с участниками (создаёт/обновляет пользователей)
+      tags:
+      - Teams
+  /team/get:
+    get:
+      description: Возвращает команду и список её участников по имени команды.
+      parameters:
+      - description: Team name
+        in: query
+        name: team_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDTO'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: NOT_FOUND
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Получить команду с участниками
+      tags:
+      - Teams
+  /users/getReview:
+    get:
+      description: Возвращает список pull request'ов, где пользователь указан как
+        ревьювер.
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetReviewResponse'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: NOT_FOUND
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Получить PR'ы, где пользователь назначен ревьювером
+      tags:
+      - Users
+  /users/setIsActive:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет поле is_active для указанного пользователя.
+      parameters:
+      - description: User id and new active flag
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SetIsActiveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SetIsActiveResponse'
+        "400":
+          description: VALIDATION
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: NOT_FOUND
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Установить флаг активности пользователя
+      tags:
+      - Users
+swagger: "2.0"

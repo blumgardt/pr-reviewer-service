@@ -13,6 +13,7 @@ import (
 	"github.com/blumgardt/pr-reviewer-service.git/internal/repository/postgres"
 	"github.com/blumgardt/pr-reviewer-service.git/internal/service"
 	"github.com/jackc/pgx/v5/pgxpool"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type App struct {
@@ -74,4 +75,7 @@ func (a *App) configureRouter() {
 	a.Router.HandleFunc("/pullRequest/create", a.PRHandler.Create)
 	a.Router.HandleFunc("/pullRequest/merge", a.PRHandler.Merge)
 	a.Router.HandleFunc("/pullRequest/reassign", a.PRHandler.ReAssign)
+
+	// Swagger UI
+	a.Router.Handle("/swagger/", httpSwagger.WrapHandler)
 }

@@ -19,6 +19,17 @@ func NewTeamHandler(teamService service.TeamService) *TeamHandler {
 	return &TeamHandler{teamService: teamService}
 }
 
+// Add godoc
+// @Summary      Создать команду с участниками (создаёт/обновляет пользователей)
+// @Description  Создаёт новую команду с участниками. Если пользователи уже существуют, обновляет их данные и привязку к команде.
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.TeamDTO           true  "Team body"
+// @Success      201   {object}  dto.TeamAddResponse
+// @Failure      400   {object}  response.ErrorResponse     "VALIDATION"
+// @Failure      409   {object}  response.ErrorResponse     "TEAM_EXISTS"
+// @Router       /team/add [post]
 func (h *TeamHandler) Add(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -50,6 +61,16 @@ func (h *TeamHandler) Add(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+// Get godoc
+// @Summary      Получить команду с участниками
+// @Description  Возвращает команду и список её участников по имени команды.
+// @Tags         Teams
+// @Produce      json
+// @Param        team_name  query     string        true  "Team name"
+// @Success      200        {object}  dto.TeamDTO
+// @Failure      400        {object}  response.ErrorResponse   "VALIDATION"
+// @Failure      404        {object}  response.ErrorResponse   "NOT_FOUND"
+// @Router       /team/get [get]
 func (h *TeamHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
