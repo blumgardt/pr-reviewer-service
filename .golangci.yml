@@ -1,0 +1,50 @@
+version: "2"
+
+run:
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - revive
+    - ineffassign
+    - unused
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  revive:
+    rules:
+      - name: exported
+      - name: var-naming
+      - name: indent-error-flow
+      - name: receiver-naming
+      - name: argument-limit
+        arguments: [5]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  settings:
+    gofmt:
+      simplify: true
+
+    goimports:
+      local-prefixes: github.com/blumgardt/pr-reviewer-service.git
+
+issues:
+  exclude-use-default: false
+
+  exclude:
+    - "package comment should be of the form"
+    - "error strings should not be capitalized"
+
+  max-same-issues: 0
+  max-issues-per-linter: 0
+  max-issues-per-file: 0

@@ -50,6 +50,7 @@ func NewApp(config *config.Config, logger *log.Logger, pool *pgxpool.Pool) *App 
 	app := &App{
 		config:       config,
 		logger:       logger,
+		db:           pool,
 		Router:       http.NewRouter(),
 		UsersHandler: usersHandler,
 		TeamHandler:  teamHandler,

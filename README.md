@@ -15,13 +15,13 @@ Swagger UI доступен по адресу: `http://localhost:8080/swagger/in
 
 ## Стек
 
-- **Язык:** Go
+- **Язык:** Go 1.25
 - **Web:** `net/http`
-- **БД:** PostgreSQL
+- **БД:** PostgreSQL 17
 - **Драйвер БД:** `pgx`
 - **Документация API:** `swaggo/swag` + `http-swagger`
 - **Запуск:** Docker + docker compose
-- **Миграции:** простые SQL-файлы (`internal/migrations`), запускаются при старте контейнера приложения
+- **Миграции:** простые SQL-файлы (`./migrations`), запускаются при старте контейнера приложения
 
 ---
 
@@ -56,13 +56,50 @@ docker compose down -v
 
 Makefile содержит удобные команды для разработки:
 
-| Команда | Описание |
-|--------|----------|
-| `make build` | Сборка бинарника в `./bin/pr-reviewer-service` |
-| `make run` | Локальный запуск сервиса без Docker |
-| `make swag` | Генерация Swagger‑доков в `./docs` |
-| `make docker-build` | Сборка Docker‑образа приложения |
-| `make docker-up` | Поднятие сервиса и БД через docker compose |
-| `make docker-down` | Остановка контейнеров |
-| `make docker-down-v` | Остановка контейнеров + удаление томов БД |
-| `make docker-logs` | Просмотр логов приложения |
+| Команда              | Описание                                      |
+|----------------------|-----------------------------------------------|
+| `make build`         | Сборка бинарника в `./bin/pr-reviewer-service` |
+| `make run`           | Локальный запуск сервиса без Docker           |
+| `make swag`          | Генерация Swagger‑доков в `./docs`            |
+| `make docker-build`  | Сборка Docker‑образа приложения               |
+| `make docker-up`     | Поднятие сервиса и БД через docker compose    |
+| `make docker-down`   | Остановка контейнеров                         |
+| `make docker-down-v` | Остановка контейнеров + удаление томов БД     |
+| `make docker-logs`   | Просмотр логов приложения                     |
+| `make linter`        | Анализ кода линтера(локально)                 |
+
+
+---
+
+## Статистика
+
+Сервис предоставляет простой эндпоинт статистики по ревьюверам:
+
+- `GET /stats/reviewers` — возвращает список пользователей и количество назначений на ревью.
+
+Пример ответа:
+
+```json
+{
+  "items": [
+    { "user_id": "u1", "username": "Alice",  "assigned_count": 5 },
+    { "user_id": "u2", "username": "Bob",    "assigned_count": 3 },
+    { "user_id": "u3", "username": "Dmitry", "assigned_count": 1 }
+  ]
+}
+```
+
+---
+
+## Кодстайл и линтер
+
+Для статического анализа кода используется `golangci-lint`.
+
+Конфигурация линтера хранится в `.golangci.yml` и включает линтеры вроде `govet`, `errcheck`, `staticcheck`, `revive` и др.
+
+
+Запуск линтера из корня проекта:
+
+```bash
+make lint
+```

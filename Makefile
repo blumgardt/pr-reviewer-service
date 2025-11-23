@@ -1,7 +1,7 @@
 APP_NAME := pr-reviewer-service
 CMD_DIR  := ./cmd/pr-reviewer-service
 
-.PHONY: build run test swag docker-build docker-up docker-down docker-logs
+.PHONY: build run test swag docker-build docker-up docker-down docker-logs lint
 
 build:
 	go build -v -o bin/$(APP_NAME) $(CMD_DIR)
@@ -26,5 +26,8 @@ docker-down-v:
 
 docker-logs:
 	docker compose logs -f app
+
+lint:
+		golangci-lint run -c .golangci.yml
 
 .DEFAULT_GOAL := run
