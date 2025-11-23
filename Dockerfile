@@ -24,13 +24,13 @@ WORKDIR /app
 
 COPY --from=builder /app/pr-reviewer-service .
 COPY --from=builder /app/docs ./docs
-COPY internal/migrations ./internal/migrations
+COPY migrations ./migrations
 COPY config.toml ./config.toml
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN chmod +x ./docker-entrypoint.sh
 
-ENV MIGRATIONS_PATH=/app/internal/migrations
+ENV MIGRATIONS_PATH=/app/migrations
 
 EXPOSE 8080
 

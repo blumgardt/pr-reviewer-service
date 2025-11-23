@@ -10,7 +10,7 @@ done
 echo "Postgres is up. Running migrations..."
 
 psql "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" \
-  -f /app/internal/migrations/0001_init.up.sql
+  -f /app/migrations/0001_init.up.sql
 
 echo "Migrations done. Starting app..."
 

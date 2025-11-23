@@ -1,2 +1,68 @@
-# pr-reviewer-service
-PR Auto Reviewer Service | Test task for Avito Internship Fall 2025
+# PR Reviewer Service
+
+Сервис назначения ревьюеров для Pull Request'ов по тестовому заданию (осенняя волна 2025).
+
+Сервис:
+- управляет командами и участниками;
+- создаёт PR и автоматически назначает до 2 ревьюеров;
+- позволяет перевыбрать ревьювера;
+- помечает PR как MERGED (идемпотентно);
+- отдаёт список PR'ов, где пользователь назначен ревьювером.
+
+Swagger UI доступен по адресу: `http://localhost:8080/swagger/index.html`.
+
+---
+
+## Стек
+
+- **Язык:** Go
+- **Web:** `net/http`
+- **БД:** PostgreSQL
+- **Драйвер БД:** `pgx`
+- **Документация API:** `swaggo/swag` + `http-swagger`
+- **Запуск:** Docker + docker compose
+- **Миграции:** простые SQL-файлы (`internal/migrations`), запускаются при старте контейнера приложения
+
+---
+
+## Запуск
+
+```bash
+docker compose up --build
+```
+
+При запуске:
+1. Поднимается контейнер PostgreSQL.  
+2. Поднимается приложение:
+   - ожидает готовности БД,
+   - автоматически применяет миграции из `migrations`,
+   - стартует HTTP‑сервер на `http://localhost:8080`.
+
+Остановка контейнеров:
+
+```bash
+docker compose down
+```
+
+Полный сброс (контейнеры + тома БД):
+
+```bash
+docker compose down -v
+```
+
+---
+
+## Make команды
+
+Makefile содержит удобные команды для разработки:
+
+| Команда | Описание |
+|--------|----------|
+| `make build` | Сборка бинарника в `./bin/pr-reviewer-service` |
+| `make run` | Локальный запуск сервиса без Docker |
+| `make swag` | Генерация Swagger‑доков в `./docs` |
+| `make docker-build` | Сборка Docker‑образа приложения |
+| `make docker-up` | Поднятие сервиса и БД через docker compose |
+| `make docker-down` | Остановка контейнеров |
+| `make docker-down-v` | Остановка контейнеров + удаление томов БД |
+| `make docker-logs` | Просмотр логов приложения |
